@@ -1,4 +1,5 @@
 import 'package:app_client/src/chat_controller.dart';
+import 'package:app_client/src/utils/images_path.dart';
 import 'package:common/common.dart';
 import 'package:flutter/material.dart';
 import 'package:rx_notifier/rx_notifier.dart';
@@ -44,7 +45,7 @@ class _ChatPageState extends State<ChatPage> {
                 child: Container(
                   decoration: BoxDecoration(
                     image: new DecorationImage(
-                      image: NetworkImage('https://upload.wikimedia.org/wikipedia/commons/b/b1/Little_background.jpg'),
+                      image: AssetImage(ImagesPath.background),
                       fit: BoxFit.cover
                     )
                   ),
