@@ -1,6 +1,6 @@
 library common;
 
-const String API_URL = 'https://dart-socket.herokuapp.com/';
+const String API_URL = 'http://localhost:3100';
 
 class SocketEvent {
   final String name;

@@ -1,7 +1,8 @@
-FROM google/dart AS build
+FROM dart AS build
 WORKDIR /server
 COPY ./common /common
 COPY ./server /server
+RUN dart pub upgrade
 RUN dart pub get
 RUN dart compile exe bin/server.dart -o bin/server
 

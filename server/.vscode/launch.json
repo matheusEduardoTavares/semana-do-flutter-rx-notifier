@@ -5,15 +5,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Emulador",
+            "name": "server",
             "request": "launch",
             "type": "dart",
-        },
-        {
-            "name": "Web",
-            "request": "launch",
-            "type": "dart",
-            "args": ["-d", "chrome"]
-        },
+            "program": "bin/server.dart"
+        }
     ]
 }

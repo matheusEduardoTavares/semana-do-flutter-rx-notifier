@@ -1,36 +1,38 @@
-import 'dart:convert';
 import 'dart:io';
 
+import 'package:common/default_events.dart';
 import 'package:socket_io/socket_io.dart';
 import 'package:common/common.dart';
 
 void main(List<String> arguments) {
   final server = Server();
 
-  server.on('connection', (client) {
+  server.on(DefaultEvents.connection, (client) {
     onConnection(client);
   });
 
-  server.listen(Platform.environment['PORT'] ?? 3000);
+  server.listen(Platform.environment['PORT'] ?? 3100);
 }
 
 void onConnection(Socket socket) {
-  socket.on('enter_room', (data) {
-    final name = data['name'];
-    final room = data['room'];
+  socket.on(DefaultEvents.enterRoom, (data) {
+    final dataFormatted = Map<String, dynamic>.from(data);
+
+    final name = dataFormatted['name'];
+    final room = dataFormatted['room'];
 
     socket.join(room);
     socket.to(room).broadcast.emit(
-        'message',
+        DefaultEvents.sendMessage,
         SocketEvent(
           name: name,
           room: room,
           type: SocketEventType.enter_room,
         ).toJson());
 
-    socket.on('disconnect', (data) {
+    socket.on(DefaultEvents.disconnection, (data) {
       socket.to(room).broadcast.emit(
-          'message',
+          DefaultEvents.sendMessage,
           SocketEvent(
             name: name,
             room: room,
@@ -38,8 +40,8 @@ void onConnection(Socket socket) {
           ).toJson());
     });
 
-    socket.on('message', (json) {
-      socket.to(room).broadcast.emit(json);
+    socket.on(DefaultEvents.sendMessage, (json) {
+      socket.to(room).broadcast.emit(DefaultEvents.sendMessage, json);
     });
   });
 }

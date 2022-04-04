@@ -7,31 +7,31 @@ class ChatPage extends StatefulWidget {
   final String name;
   final String room;
 
-  const ChatPage({Key key, @required this.name, @required this.room}) : super(key: key);
+  const ChatPage({Key? key, required this.name, required this.room}) : super(key: key);
 
   @override
   _ChatPageState createState() => _ChatPageState();
 }
 
 class _ChatPageState extends State<ChatPage> {
-  ChatController controller;
+  late ChatController _controller;
 
   @override
   void initState() {
     super.initState();
-    controller = ChatController(widget.room, widget.name);
+    _controller = ChatController(widget.room, widget.name);
   }
 
   @override
   void dispose() {
     super.dispose();
-    controller.dispose();
+    _controller.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Room: ${widget.room}')),
+      appBar: AppBar(title: Text('Sala: ${widget.room}')),
       extendBody: true,
       body: Container(
         width: double.infinity,
@@ -41,9 +41,10 @@ class _ChatPageState extends State<ChatPage> {
             RxBuilder(builder: (_) {
               return Expanded(
                 child: ListView.builder(
-                  itemCount: controller.listEvents.length,
+                  controller: _controller.scrollController,
+                  itemCount: _controller.listEvents.length,
                   itemBuilder: (_, id) {
-                    final event = controller.listEvents[id];
+                    final event = _controller.listEvents[id];
 
                     if (event.type == SocketEventType.enter_room) {
                       return ListTile(title: Text('${event.name} ENTROU NA SALA!'));
@@ -60,13 +61,13 @@ class _ChatPageState extends State<ChatPage> {
               );
             }),
             TextField(
-              focusNode: controller.focusNode,
-              onSubmitted: (_) => controller.send(),
-              controller: controller.textControler,
+              focusNode: _controller.focusNode,
+              onSubmitted: (_) => _controller.send(),
+              controller: _controller.textControler,
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
-                hintText: 'Type your text',
-                suffixIcon: IconButton(icon: Icon(Icons.send), onPressed: controller.send),
+                hintText: 'Digite a mensagem',
+                suffixIcon: IconButton(icon: Icon(Icons.send), onPressed: _controller.send),
               ),
             )
           ],

@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (_) => HomePage(),
         '/chat': (context) {
-          final args = ModalRoute.of(context).settings.arguments as Map;
+          final args = ModalRoute.of(context)!.settings.arguments as Map;
           return ChatPage(name: args['name'], room: args['room']);
         },
       },

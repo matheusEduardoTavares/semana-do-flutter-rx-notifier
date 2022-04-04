@@ -1,15 +1,17 @@
+import 'package:common/default_events.dart';
 import 'package:flutter/widgets.dart';
 import 'package:rx_notifier/rx_notifier.dart';
 import 'package:socket_io_client/socket_io_client.dart';
 import 'package:common/common.dart';
 
 class ChatController {
-  Socket socket;
+  late Socket socket;
   final String room;
   final String name;
   final listEvents = RxList<SocketEvent>([]);
   final textControler = TextEditingController(text: '');
   final focusNode = FocusNode();
+  final scrollController = ScrollController();
 
   ChatController(this.room, this.name) {
     _init();
@@ -22,11 +24,15 @@ class ChatController {
     );
     socket.connect();
     socket.onConnect((_) {
-      socket.emit('enter_room', {'room': room, 'name': name});
+      socket.emit(DefaultEvents.enterRoom, {'room': room, 'name': name});
     });
-    socket.on('message', (json) {
+    socket.on(DefaultEvents.sendMessage, (json) {
       final event = SocketEvent.fromJson(json);
       listEvents.add(event);
+
+      WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+        scrollController.jumpTo(scrollController.position.maxScrollExtent);
+      });
     });
   }
 
@@ -38,13 +44,14 @@ class ChatController {
       type: SocketEventType.message,
     );
     listEvents.add(event);
-    socket.emit('message', event.toJson());
+    socket.emit(DefaultEvents.sendMessage, event.toJson());
     textControler.clear();
     focusNode.requestFocus();
   }
 
   void dispose() {
     socket.clearListeners();
+    socket.onDisconnect((data) => null);
     socket.dispose();
     textControler.dispose();
     focusNode.dispose();
