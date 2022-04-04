@@ -31,47 +31,83 @@ class _ChatPageState extends State<ChatPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Sala: ${widget.room}')),
+      appBar: AppBar(
+        title: Text('Sala: ${widget.room}'),
+        centerTitle: true,
+      ),
       extendBody: true,
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        child: Column(
-          children: [
-            RxBuilder(builder: (_) {
-              return Expanded(
-                child: ListView.builder(
-                  controller: _controller.scrollController,
-                  itemCount: _controller.listEvents.length,
-                  itemBuilder: (_, id) {
-                    final event = _controller.listEvents[id];
-
-                    if (event.type == SocketEventType.enter_room) {
-                      return ListTile(title: Text('${event.name} ENTROU NA SALA!'));
-                    } else if (event.type == SocketEventType.leave_room) {
-                      return ListTile(title: Text('${event.name} SAIU DA SALA!'));
-                    }
-
-                    return ListTile(
-                      title: Text(event.name),
-                      subtitle: Text(event.text),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return Column(
+            children: [
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    image: new DecorationImage(
+                      image: NetworkImage('https://upload.wikimedia.org/wikipedia/commons/b/b1/Little_background.jpg'),
+                      fit: BoxFit.cover
+                    )
+                  ),
+                  child: RxBuilder(builder: (_) {
+                    return ListView.builder(
+                      controller: _controller.scrollController,
+                      itemCount: _controller.listEvents.length,
+                      itemBuilder: (_, id) {
+                        final event = _controller.listEvents[id];
+      
+                        final Widget child;
+                        var color = Colors.black;
+      
+                        if (event.type == SocketEventType.enter_room) {
+                          child = ListTile(
+                            title: Text(
+                              event.name,
+                            ),
+                            subtitle: Text('ENTROU NA SALA!'),
+                          );
+                          color = Theme.of(context).primaryColor;
+                        } else if (event.type == SocketEventType.leave_room) {
+                          child = ListTile(
+                            title: Text(
+                              event.name,
+                            ),
+                            subtitle: Text('SAIU DA SALA!'),
+                          );
+                          color = Colors.red;
+                        }
+                        else {
+                          child = ListTile(
+                            title: Text(event.name),
+                            subtitle: Text(event.text),
+                          );
+                          color = Colors.white70;
+                        }
+      
+                        return Card(
+                          color: color,
+                          child: child,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(50.0)
+                          ),
+                        );
+                      },
                     );
-                  },
+                  }),
                 ),
-              );
-            }),
-            TextField(
-              focusNode: _controller.focusNode,
-              onSubmitted: (_) => _controller.send(),
-              controller: _controller.textControler,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: 'Digite a mensagem',
-                suffixIcon: IconButton(icon: Icon(Icons.send), onPressed: _controller.send),
               ),
-            )
-          ],
-        ),
+              TextField(
+                focusNode: _controller.focusNode,
+                onSubmitted: (_) => _controller.send(),
+                controller: _controller.textControler,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: 'Digite a mensagem',
+                  suffixIcon: IconButton(icon: Icon(Icons.send), onPressed: _controller.send),
+                ),
+              )
+            ],
+          );
+        }
       ),
     );
   }

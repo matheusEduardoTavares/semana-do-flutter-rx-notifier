@@ -29,10 +29,7 @@ class ChatController {
     socket.on(DefaultEvents.sendMessage, (json) {
       final event = SocketEvent.fromJson(json);
       listEvents.add(event);
-
-      WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-        scrollController.jumpTo(scrollController.position.maxScrollExtent);
-      });
+      _updateChatScroll();
     });
   }
 
@@ -47,6 +44,23 @@ class ChatController {
     socket.emit(DefaultEvents.sendMessage, event.toJson());
     textControler.clear();
     focusNode.requestFocus();
+    _updateChatScroll();
+  }
+
+  Future<void> _scrollToEnd() {
+    return scrollController.animateTo(
+      scrollController.position.maxScrollExtent,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeIn
+    );
+  }
+
+  void _updateChatScroll() {
+    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+      _scrollToEnd().then((_) {
+        _scrollToEnd();
+      });
+    });
   }
 
   void dispose() {
